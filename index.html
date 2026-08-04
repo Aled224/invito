@@ -186,32 +186,22 @@ body.chiuso{overflow:hidden; position:fixed; width:100%}
 }
 .busta.aperta .lembo{transform:rotateX(-168deg); z-index:0}
 
-/* la ceralacca: cera chiara, bordo tondo irregolare, monogramma inciso */
+/* La ceralacca. E' disegnata, non e' un cerchio con una sfumatura:
+   il bordo viene deformato da un rumore, cosi' e' irregolare come la
+   cera che si allarga. Sopra ci sono la grana, la conca lasciata dal
+   timbro, l'anello e le lettere incise. */
 .sigillo{
   position:absolute; left:50%; top:38%; z-index:6;
-  width:min(27vw,116px); height:min(27vw,116px);
+  width:min(31vw,132px); height:min(31vw,132px);
   transform:translate(-50%,-50%);
-  border-radius:47% 53% 52% 48% / 51% 47% 53% 49%;
-  background:
-    radial-gradient(circle at 36% 30%, #FBF5EC 0%, #F0E5D6 46%, #DFCEBA 82%, #CDB79F 100%);
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:
-    0 8px 20px rgba(150,120,95,.32),
-    inset 0 2px 4px rgba(255,255,255,.85),
-    inset 0 -3px 6px rgba(160,130,105,.3);
-  transition:opacity .55s ease, transform .6s cubic-bezier(.33,0,.2,1);
   pointer-events:none;
-  /* le lettere sembrano incise nella cera: stesso colore del fondo,
-     un'ombra sopra che scava e una luce sotto che rialza il bordo */
-  font-family:var(--sottile); font-weight:250;
-  font-size:min(8.6vw,36px); letter-spacing:.16em; padding-left:.16em;
-  color:#DBC9B4;
-  text-shadow:0 -1px 1px rgba(126,96,72,.6), 0 1px 1px rgba(255,252,246,.95);
+  filter:drop-shadow(0 7px 11px rgba(140,110,85,.4));
+  transition:opacity .55s ease, transform .6s cubic-bezier(.33,0,.2,1);
 }
-.sigillo::after{
-  content:""; position:absolute; inset:11%; border-radius:50%;
-  border:1px solid rgba(160,130,105,.42);
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.7);
+.sigillo svg{display:block; width:100%; height:100%; overflow:visible}
+.sigillo text{
+  font-family:var(--sottile); font-weight:300;
+  font-size:44px; letter-spacing:7px;
 }
 .busta.aperta .sigillo{opacity:0; transform:translate(-50%,-50%) translateY(-14px) scale(.9)}
 
@@ -423,7 +413,61 @@ footer .firma,.segnaposto small,.programma .h{
     <span class="retro"></span>
     <span class="fronte"></span>
     <span class="lembo"></span>
-    <span class="sigillo" id="sigla">A&amp;L</span>
+    <span class="sigillo">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <!-- il rumore che sforma il bordo: e' quello che toglie
+               l'aria di bottone di plastica -->
+          <filter id="cera" x="-30%" y="-30%" width="160%" height="160%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.0105"
+                          numOctaves="2" seed="9" result="rumore"/>
+            <feDisplacementMap in="SourceGraphic" in2="rumore" scale="13"
+                               xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+          <filter id="poro">
+            <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" seed="6"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <pattern id="grana2" width="200" height="200" patternUnits="userSpaceOnUse">
+            <rect width="200" height="200" filter="url(#poro)"/>
+          </pattern>
+          <radialGradient id="corpo" cx="38%" cy="31%" r="82%">
+            <stop offset="0%"   stop-color="#FBF4E9"/>
+            <stop offset="46%"  stop-color="#F0E4D2"/>
+            <stop offset="82%"  stop-color="#E1CFB7"/>
+            <stop offset="100%" stop-color="#CFB99E"/>
+          </radialGradient>
+          <radialGradient id="orlo" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#8A6A50" stop-opacity="0"/>
+            <stop offset="87%"  stop-color="#8A6A50" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#8A6A50" stop-opacity=".26"/>
+          </radialGradient>
+          <radialGradient id="conca" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#8A6A50" stop-opacity="0"/>
+            <stop offset="62%"  stop-color="#8A6A50" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#8A6A50" stop-opacity=".26"/>
+          </radialGradient>
+        </defs>
+
+        <!-- la cera: corpo, grana e ombra dell'orlo, tutti sformati insieme -->
+        <g filter="url(#cera)">
+          <circle cx="100" cy="100" r="83" fill="url(#corpo)"/>
+          <circle cx="100" cy="100" r="83" fill="url(#grana2)"
+                  opacity=".17" style="mix-blend-mode:multiply"/>
+          <circle cx="100" cy="100" r="83" fill="url(#orlo)"/>
+        </g>
+
+        <!-- la conca schiacciata dal timbro, con l'anello inciso -->
+        <circle cx="100" cy="100" r="70" fill="url(#conca)"/>
+        <circle cx="100" cy="99"  r="62" fill="none" stroke="#95755A" stroke-opacity=".42" stroke-width="1.7"/>
+        <circle cx="100" cy="101" r="62" fill="none" stroke="#FFFCF6" stroke-opacity=".72" stroke-width="1.5"/>
+
+        <!-- le lettere incise: ombra sopra, luce sotto, cera in mezzo -->
+        <text class="sig" x="103.5" y="102"   text-anchor="middle" dominant-baseline="central" fill="#FFFCF6" fill-opacity=".8">AL</text>
+        <text class="sig" x="103.5" y="99"    text-anchor="middle" dominant-baseline="central" fill="#8E6E52" fill-opacity=".62">AL</text>
+        <text class="sig" x="103.5" y="100.5" text-anchor="middle" dominant-baseline="central" fill="#E9DAC4">AL</text>
+      </svg>
+    </span>
     <span class="dicitura" id="dicitura">
       <span class="invito">Siete invitati al matrimonio di</span>
       <span class="sposi" id="bustaSposi">Alessia &amp; Luca</span>
@@ -591,7 +635,8 @@ footer .firma,.segnaposto small,.programma .h{
   const sigla = iniz(C.lei) + "&" + iniz(C.lui);
 
   document.title = C.lei + " & " + C.lui + " | Ci sposiamo";
-  $("sigla").textContent = iniz(C.lei) + iniz(C.lui);
+  const sullaCera = iniz(C.lei) + iniz(C.lui);
+  document.querySelectorAll(".sigillo text.sig").forEach(function(t){ t.textContent = sullaCera; });
   $("bustaSposi").textContent = C.lei + " & " + C.lui;
   $("bustaDove").textContent = C.citta || "";
   $("mono").textContent = iniz(C.lei) + " & " + iniz(C.lui);
