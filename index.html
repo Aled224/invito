@@ -228,6 +228,28 @@ body.chiuso{overflow:hidden; position:fixed; width:100%}
 }
 .istruzione.via,.dicitura.via{opacity:0}
 
+/* Schermo largo: computer, tablet in orizzontale, telefono girato.
+   La busta e' verticale, quindi riempiendo tutto se ne vedrebbe solo
+   una fascia centrale ingrandita. Diventa invece una scheda centrata,
+   come una partecipazione appoggiata sul tavolo. */
+@media (min-aspect-ratio: 3/4){
+  #scena{
+    display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(90% 70% at 50% 0%, #FBF6EF 0%, rgba(251,246,239,0) 62%),
+      linear-gradient(158deg,#F2EADE 0%,#E7DBC9 56%,#D9C9B2 100%);
+  }
+  .busta{
+    position:relative; inset:auto; left:auto; top:auto;
+    width:auto; height:min(87vh, 900px);
+    aspect-ratio:941 / 1672;
+    box-shadow:0 34px 74px rgba(120,95,74,.3), 0 4px 12px rgba(120,95,74,.16);
+  }
+  .busta.fuori{transform:scale(1.04); opacity:0}
+  /* fuori dalla scheda, non a filo del suo bordo */
+  .istruzione{bottom:calc(22px + env(safe-area-inset-bottom))}
+}
+
 @media (prefers-reduced-motion:reduce){
   .busta,.lembo,.sigillo,.interno,#scena{transition-duration:.01ms !important}
 }
@@ -385,6 +407,12 @@ footer .firma,.segnaposto small,.programma .h{
 .dvcitta{font-size:11px; letter-spacing:.3em; text-transform:uppercase; padding-left:.3em}
 .programma .h{font-weight:500}
 .invia{font-weight:500}
+
+/* Su schermo largo la foto verticale diventerebbe un blocco altissimo
+   e mezzo vuoto: si tiene stretta e centrata. */
+@media (min-width:700px){
+  .fotoblocco{max-width:430px; margin-left:auto; margin-right:auto}
+}
 
 .sez{margin-top:50px}
 .nascosto{display:none !important}
@@ -637,7 +665,12 @@ footer .firma,.segnaposto small,.programma .h{
   const lembo = $("lembo"), interno = $("interno"), sigillo = $("sigla");
 
   function piazza(){
-    const L = window.innerWidth, A = window.innerHeight;
+    /* si misura la busta, non la finestra: su schermo largo la busta
+       non riempie piu' tutto ma diventa una scheda centrata, e i punti
+       vanno calcolati dentro quella */
+    const riquadro = busta.getBoundingClientRect();
+    const L = riquadro.width || window.innerWidth;
+    const A = riquadro.height || window.innerHeight;
     const s = Math.max(L / F.larga, A / F.alta);
     const scartoX = (L - F.larga * s) / 2, scartoY = (A - F.alta * s) / 2;
     const X = p => p * s + scartoX, Y = p => p * s + scartoY;
@@ -672,6 +705,12 @@ footer .firma,.segnaposto small,.programma .h{
   }
   piazza();
   window.addEventListener("resize", piazza);
+
+  /* su un computer non si tocca, si clicca */
+  if (window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    $("istruzione").textContent = "Clicca per aprire";
+    busta.setAttribute("aria-label", "Apri l'invito");
+  }
 
   /* ---- Apertura della busta ---- */
   let apertaGia = false;
