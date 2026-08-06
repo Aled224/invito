@@ -358,6 +358,14 @@ input[type=text],textarea,select{
   width:100%;padding:13px 14px;font-family:var(--serif);font-size:16px;color:var(--inchiostro);
   background:#FFFCF7;border:1px solid var(--linea);border-radius:2px;outline:none;transition:border-color .2s;
 }
+/* I 16px qui sopra non si possono abbassare: sotto quella misura
+   l'iPhone, appena si tocca una cella, ingrandisce la pagina da solo e
+   poi resta ingrandita. Quello che si vedeva grosso pero' non e' cio'
+   che si scrive, e' il suggerimento grigio dentro alla cella: quello
+   si puo' rimpicciolire da solo, senza toccare il resto. */
+input::placeholder,textarea::placeholder{
+  font-size:13.5px; font-style:italic; color:var(--tenue); opacity:1;
+}
 input:focus,textarea:focus,select:focus{border-color:var(--moka-chiaro)}
 textarea{resize:vertical;min-height:82px}
 select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237E6350'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
@@ -511,7 +519,7 @@ footer .saluto,.programma .h{
         </div>
 
         <div class="campo">
-          <label>Ci sarete?</label>
+          <label>Ci sarai?</label>
           <div class="scelta">
             <input type="radio" id="si" name="presenza" value="si" checked>
             <label for="si">Ci sar&#242;</label>
