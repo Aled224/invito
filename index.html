@@ -59,9 +59,43 @@ const INVITO = {
   "regaloTitolo": "Un pensiero",
   "regaloFrase": "La vostra presenza sarà il dono più prezioso. Per chi desiderasse regalarci un pensiero, contribuirà a rendere indimenticabile il nostro viaggio di nozze.",
   "regaloIntestatario": "Alessia e Luca",
-  "regaloIban": "IT00 X000 0000 0000 0000 0000 000",
   "foglio": "https://script.google.com/macros/s/AKfycbzbUMu9_-ErnPOKAd2ZrEPFRXOsaPiCOTVlg0URJowJKZgAGOkDfWjv0b__SagcJ7MwAQ/exec",
-  "avvisoMail": "https://script.google.com/macros/s/AKfycby2SMIhNd8QAnHQpWpBsz2fvd7RoTE3g80_3kpQwNVXjeGhJl8VR7CDvMYL2HXEqXL_eg/exec"
+  "avvisoMail": "https://script.google.com/macros/s/AKfycby2SMIhNd8QAnHQpWpBsz2fvd7RoTE3g80_3kpQwNVXjeGhJl8VR7CDvMYL2HXEqXL_eg/exec",
+  "ibanPezzi": [
+    80,
+    91,
+    55,
+    55,
+    39,
+    95,
+    55,
+    55,
+    55,
+    39,
+    55,
+    55,
+    55,
+    55,
+    39,
+    55,
+    55,
+    55,
+    55,
+    39,
+    55,
+    55,
+    55,
+    55,
+    39,
+    55,
+    55,
+    55,
+    55,
+    39,
+    55,
+    55,
+    55
+  ]
 };
 /*DATI-FINE*/
 </script>
@@ -695,11 +729,22 @@ footer .saluto,.programma .h{
 
   if (C.dressCode) $("dressTesto").textContent = C.dressCode; else $("sezDress").classList.add("nascosto");
 
-  /* ---- Il pensiero e l'IBAN ---- */
-  if (C.regaloFrase || C.regaloIban) {
+  /* ---- Il pensiero e l'IBAN ----
+     L'IBAN non e' scritto in chiaro da nessuna parte nel file pubblicato:
+     dentro ci sono solo numeri senza senso, e la riga qui sotto lo rimette
+     insieme quando la pagina si apre. Non e' un lucchetto, chi apre gli
+     strumenti da sviluppatore lo legge lo stesso: serve a non farlo
+     trovare dai raccoglitori automatici, dalle ricerche dentro al codice
+     su GitHub e dagli archivi delle pagine. La difesa vera e' che quel
+     conto sia dedicato al matrimonio e non il conto di tutti i giorni. */
+  const IBAN = (C.ibanPezzi || []).map(function(n){
+    return String.fromCharCode(n - 7);
+  }).join("");
+
+  if (C.regaloFrase || IBAN) {
     $("regaloFrase").textContent = C.regaloFrase || "";
-    if (C.regaloIban) {
-      $("ibanCodice").textContent = C.regaloIban;
+    if (IBAN) {
+      $("ibanCodice").textContent = IBAN;
       $("ibanIntestato").textContent = C.regaloIntestatario ? "Intestato a " + C.regaloIntestatario : "";
     } else {
       $("ibanBlocco").classList.add("nascosto");
@@ -708,7 +753,7 @@ footer .saluto,.programma .h{
   } else { $("sezRegalo").classList.add("nascosto"); }
 
   $("copiaIban").addEventListener("click", function(){
-    const btn = this, testo = (C.regaloIban || "").replace(/\s+/g, "");
+    const btn = this, testo = IBAN.replace(/\s+/g, "");
     const ok = function(){ btn.textContent = "IBAN copiato"; setTimeout(function(){ btn.textContent = "Copia l'IBAN"; }, 2200); };
     if (navigator.clipboard) navigator.clipboard.writeText(testo).then(ok, ok);
     else {
