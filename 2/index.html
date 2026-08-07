@@ -60,7 +60,8 @@ const INVITO = {
   "regaloFrase": "La vostra presenza sarà il dono più prezioso. Per chi desiderasse regalarci un pensiero, contribuirà a rendere indimenticabile il nostro viaggio di nozze.",
   "regaloIntestatario": "Alessia e Luca",
   "regaloIban": "IT00 X000 0000 0000 0000 0000 000",
-  "foglio": "https://script.google.com/macros/s/AKfycbzbUMu9_-ErnPOKAd2ZrEPFRXOsaPiCOTVlg0URJowJKZgAGOkDfWjv0b__SagcJ7MwAQ/exec"
+  "foglio": "https://script.google.com/macros/s/AKfycbzbUMu9_-ErnPOKAd2ZrEPFRXOsaPiCOTVlg0URJowJKZgAGOkDfWjv0b__SagcJ7MwAQ/exec",
+  "avvisoMail": "https://script.google.com/macros/s/AKfycbyLgqw0uET0nbE1J8JbOiUTZ1r1RgTJFDv8qXsCg6U1SAivfi4mkJ2FXr8qUFvERKHBsg/exec"
 };
 /*DATI-FINE*/
 </script>
@@ -951,6 +952,24 @@ footer .saluto,.programma .h{
       return;
     }
     inviando = true;
+
+    /* Dall'invio partono due strade che non si conoscono: il modulo va
+       allo script del foglio dentro al riquadro invisibile, e insieme a
+       lui parte una copia allo script della mail, che vive in un altro
+       account. Nessuna delle due aspetta l'altra e nessuna sa se l'altra
+       ce l'ha fatta: perche' si perda una risposta devono cadere tutti e
+       due. La copia si manda e non si sta a sentire la risposta. */
+    if (C.avvisoMail) {
+      try {
+        const copia = new URLSearchParams();
+        new FormData($("modulo")).forEach(function(valore, campo){
+          copia.append(campo, valore);
+        });
+        fetch(C.avvisoMail, {method:"POST", mode:"no-cors", body:copia})
+          .catch(function(){});
+      } catch (errore) { /* il foglio riceve lo stesso */ }
+    }
+
     /* il tasto si spegne un attimo dopo, non adesso: spegnerlo dentro al
        gestore puo' fermare l'invio che e' appena partito */
     setTimeout(function(){
