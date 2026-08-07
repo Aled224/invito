@@ -565,19 +565,19 @@ footer .saluto,.programma .h{
             <label for="quanti">Quante persone in tutto</label>
             <select id="quanti" name="quanti"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
           </div>
-          <div class="campo">
+          <div class="campo" id="campoAccompagnatori">
             <label for="accompagnatori">Nomi degli accompagnatori</label>
             <input type="text" id="accompagnatori" name="accompagnatori" placeholder="Se vieni con qualcuno">
           </div>
           <div class="campo">
             <label for="cibo">Allergie o esigenze a tavola</label>
-            <input type="text" id="cibo" name="cibo" placeholder="Vegetariano, celiaco, nessuna...">
+            <input type="text" id="cibo" name="cibo" placeholder="Vegetariano, celiaco, vegano...">
           </div>
         </div>
 
         <div class="campo">
           <label for="messaggio">Due righe per noi</label>
-          <textarea id="messaggio" name="messaggio" placeholder="Facoltativo"></textarea>
+          <textarea id="messaggio" name="messaggio" placeholder="Un pensiero per noi"></textarea>
         </div>
 
         <button type="submit" class="invia" id="btnInvia">Invia la risposta</button>
@@ -588,7 +588,7 @@ footer .saluto,.programma .h{
       <div id="grazie">
         <div class="spunta">&#10003;</div>
         <h3>Grazie</h3>
-        <p id="graziePar">Abbiamo ricevuto la vostra risposta.</p>
+        <p id="graziePar">Abbiamo ricevuto la tua risposta. Non vediamo l&#8217;ora di vivere questo momento insieme.</p>
         <textarea id="testoCopia" readonly class="nascosto" style="text-align:left;font-size:14px;min-height:150px"></textarea>
         <button type="button" class="invia secondaria nascosto" id="btnCopia">Copia il testo</button>
         <!-- qui c'era "Correggi la risposta", che riapriva il modulo. Tolto:
@@ -890,6 +890,18 @@ footer .saluto,.programma .h{
     r.addEventListener("change", function(){ $("seVengo").classList.toggle("aperto", $("si").checked); });
   });
 
+  /* Chi viene da solo non ha accompagnatori da scrivere: la riga sparisce
+     invece di restare li' vuota a farsi guardare. Se poi cambia idea e
+     mette 2, torna. Si svuota anche il campo, cosi' non resta appeso un
+     nome se prima aveva scritto qualcuno. */
+  function riganomi(){
+    const solo = $("quanti").value === "1";
+    $("campoAccompagnatori").classList.toggle("nascosto", solo);
+    if (solo) $("accompagnatori").value = "";
+  }
+  $("quanti").addEventListener("change", riganomi);
+  riganomi();
+
   function componi(){
     const nome = $("nome").value.trim();
     if (!nome) { $("nome").style.borderColor = "#B4553F"; $("nome").focus(); return null; }
@@ -911,7 +923,7 @@ footer .saluto,.programma .h{
     $("modulo").style.display = "none";
     $("grazie").classList.add("aperto");
     if (salvato) {
-      $("graziePar").textContent = "Abbiamo ricevuto la vostra risposta.";
+      $("graziePar").textContent = "Abbiamo ricevuto la tua risposta. Non vediamo l’ora di vivere questo momento insieme.";
       $("testoCopia").classList.add("nascosto");
       $("btnCopia").classList.add("nascosto");
     } else {
