@@ -992,6 +992,14 @@ footer .saluto,.programma .h{
   }
   /* Versione 2: senza misure non c'e' lembo da ritagliare, la copertina
      e' un pezzo unico e si limita ad allontanarsi. */
+  /* La ceralacca sta dentro al lembo solo dove serve, cioe' nelle
+     aperture che la fanno viaggiare con la falda. Nell'invito di sempre
+     torna dov'era, figlia della busta: cosi' resta ferma e svanisce sul
+     posto, esattamente come prima. */
+  if (!document.body.className.match(/apre[12]/)) {
+    busta.appendChild(sigillo);
+  }
+
   const scheda = !F || !F.larga;
   if (scheda) {
     busta.classList.add("scheda");
