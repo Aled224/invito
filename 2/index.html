@@ -424,6 +424,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .invia.secondaria{background:transparent;color:var(--moka);margin-top:10px}
 .invia.secondaria:hover{background:rgba(126,99,80,.09)}
 .invia.stretta{width:auto;padding:14px 30px}
+.invia:disabled{opacity:.55;cursor:default}
 
 #grazie{display:none;text-align:center}
 #grazie.aperto{display:block}
@@ -590,7 +591,8 @@ footer .saluto,.programma .h{
         <p id="graziePar">Abbiamo ricevuto la vostra risposta.</p>
         <textarea id="testoCopia" readonly class="nascosto" style="text-align:left;font-size:14px;min-height:150px"></textarea>
         <button type="button" class="invia secondaria nascosto" id="btnCopia">Copia il testo</button>
-        <button type="button" class="invia secondaria" id="btnIndietro">Correggi la risposta</button>
+        <!-- qui c'era "Correggi la risposta", che riapriva il modulo. Tolto:
+             chi correggeva mandava una seconda riga uguale al foglio -->
       </div>
       </div>
     </div>
@@ -909,7 +911,7 @@ footer .saluto,.programma .h{
     $("modulo").style.display = "none";
     $("grazie").classList.add("aperto");
     if (salvato) {
-      $("graziePar").textContent = "Abbiamo ricevuto la vostra risposta. Se avete sbagliato qualcosa potete rimandarla, teniamo buona l'ultima.";
+      $("graziePar").textContent = "Abbiamo ricevuto la vostra risposta.";
       $("testoCopia").classList.add("nascosto");
       $("btnCopia").classList.add("nascosto");
     } else {
@@ -921,7 +923,13 @@ footer .saluto,.programma .h{
     $("grazie").scrollIntoView({behavior:"smooth", block:"center"});
   }
 
+  /* Due tocchi veloci sul tasto mandavano due righe uguali al foglio: il
+     modulo sparisce solo dopo 80 millesimi, e in mezzo ci sta un secondo
+     tocco. Da qui in poi il primo invio chiude la porta. */
+  let inviando = false;
+
   $("modulo").addEventListener("submit", function(e){
+    if (inviando) { e.preventDefault(); return; }
     const t = componi();
     if (!t) { e.preventDefault(); return; }
     if (!alFoglio) {
@@ -930,6 +938,13 @@ footer .saluto,.programma .h{
       conferma(t, false);
       return;
     }
+    inviando = true;
+    /* il tasto si spegne un attimo dopo, non adesso: spegnerlo dentro al
+       gestore puo' fermare l'invio che e' appena partito */
+    setTimeout(function(){
+      $("btnInvia").disabled = true;
+      $("btnInvia").textContent = "Invio in corso";
+    }, 0);
     /* l'invio parte davvero e finisce nel riquadro invisibile */
     setTimeout(function(){ conferma(t, true); }, 80);
   });
@@ -950,10 +965,6 @@ footer .saluto,.programma .h{
     const ok = function(){ btn.textContent = "Copiato"; setTimeout(function(){ btn.textContent = "Copia il testo"; }, 2200); };
     if (navigator.clipboard) navigator.clipboard.writeText(ta.value).then(ok, function(){ document.execCommand("copy"); ok(); });
     else { document.execCommand("copy"); ok(); }
-  });
-  $("btnIndietro").addEventListener("click", function(){
-    $("grazie").classList.remove("aperto");
-    $("modulo").style.display = "";
   });
 })();
 </script>
