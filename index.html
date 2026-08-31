@@ -57,7 +57,7 @@ const INVITO = {
   "email": "",
   "dressCode": "",
   "regaloTitolo": "Un pensiero",
-  "regaloFrase": "La vostra presenza sarà il dono più prezioso. Per chi desiderasse regalarci un pensiero, contribuirà a rendere indimenticabile il nostro viaggio di nozze.",
+  "regaloFrase": "La vostra presenza sarà il dono più prezioso. Per chi desiderasse dedicarci un pensiero, contribuirà a rendere indimenticabile il nostro viaggio di nozze.",
   "regaloIntestatario": "Alessia e Luca",
   "foglio": "https://script.google.com/macros/s/AKfycbzbUMu9_-ErnPOKAd2ZrEPFRXOsaPiCOTVlg0URJowJKZgAGOkDfWjv0b__SagcJ7MwAQ/exec",
   "avvisoMail": "https://script.google.com/macros/s/AKfycby2SMIhNd8QAnHQpWpBsz2fvd7RoTE3g80_3kpQwNVXjeGhJl8VR7CDvMYL2HXEqXL_eg/exec",
@@ -163,9 +163,18 @@ body.chiuso{overflow:hidden; position:fixed; width:100%}
    ========================================================== */
 #scena{
   position:fixed; inset:0; z-index:100; overflow:hidden;
-  background:#E8DFD2;
   perspective:1800px;
   transition:opacity .2s ease, visibility .2s;
+}
+/* Il fondo della scena sta su uno strato a parte, non sulla scena stessa,
+   perche' nell'apertura che si smonta deve dissolversi: solo cosi' fra un
+   pezzo di busta e l'altro si vede l'invito e non il fondo. Sfumando
+   invece di sparire di colpo non si vede nessuno scatto sullo schermo
+   largo, dove il fondo attorno alla scheda si vede tutto. */
+#scena::before{
+  content:""; position:absolute; inset:0; z-index:0;
+  background:#E8DFD2;
+  transition:opacity .3s ease;
 }
 #scena.via{opacity:0; visibility:hidden; pointer-events:none}
 
@@ -272,8 +281,21 @@ body.apre1 .foglio.esce.su{transform:translateY(0)}
    grande sopra e una piu' piccola sotto, che salgono tutte e due alla
    ceralacca. Quel che resta sono i due fianchi, che scorrono via di
    lato. Le forme sono misurate sulla fotografia, non inventate. */
-body.apre2 #scena{background:transparent}
-body.apre2 .fronte{display:none}
+/* Finche' la busta e' chiusa resta com'era: sotto ai quattro pezzi c'e'
+   ancora la fotografia intera. Smontata in pezzi e basta, lungo le pieghe
+   restava un filo di pagina che si vedeva fra un ritaglio e l'altro, e la
+   busta sembrava incrinata. La foto sotto e' la stessa immagine con lo
+   stesso "cover", quindi combacia da sola e la copertina chiusa e'
+   identica a quella di sempre. Sparisce nell'istante in cui si apre,
+   nascosta dai pezzi che in quel momento la coprono ancora tutta:
+   se restasse, sotto alle falde che si alzano ci sarebbe di nuovo una
+   busta chiusa invece dell'invito.
+   Per lo stesso motivo il fondo della scena diventa trasparente solo
+   quando si apre: chiusa, su schermo largo, deve restare la scheda
+   appoggiata sul fondo champagne come nelle altre versioni. */
+body.apre2 .fronte{z-index:1}
+body.apre2 #scena.smonta .fronte{display:none}
+body.apre2 #scena.smonta::before{opacity:0}
 
 .fianco{
   position:absolute; inset:0; z-index:2; display:none;
@@ -309,8 +331,8 @@ body.apre2 .busta.aperta .lembo.sotto{transform:rotateX(152deg)}
    una fascia centrale ingrandita. Diventa invece una scheda centrata,
    come una partecipazione appoggiata sul tavolo. */
 @media (min-aspect-ratio: 3/4){
-  #scena{
-    display:flex; align-items:center; justify-content:center;
+  #scena{display:flex; align-items:center; justify-content:center}
+  #scena::before{
     background:
       radial-gradient(90% 70% at 50% 0%, #FBF6EF 0%, rgba(251,246,239,0) 62%),
       linear-gradient(158deg,#F2EADE 0%,#E7DBC9 56%,#D9C9B2 100%);
@@ -360,7 +382,10 @@ header.testata{padding:44px 0 0; text-align:center}
   font-size:clamp(52px,15vw,86px); line-height:1.12; margin:0;
   color:var(--inchiostro);
 }
-.nomi .et{display:inline-block; font-size:.66em; color:var(--moka-chiaro); margin:0 .2em}
+/* La stessa "e" vale per i nomi in testa e per la firma in fondo: e'
+   l'unica congiunzione della pagina e deve essere una sola. */
+.nomi .et,
+footer .firma .et{display:inline-block; font-size:.66em; color:var(--moka-chiaro); margin:0 .2em}
 /* Sotto ai nomi due righe diverse: l'annuncio in maiuscoletto, secco,
    e sotto l'invito vero in corsivo. Tutto in maiuscoletto sarebbe un
    muro di tre righe, tutto in corsivo perderebbe l'aria della carta. */
@@ -579,7 +604,7 @@ footer .saluto,.programma .h{
 .nascosto{display:none !important}
 </style>
 </head>
-<body class="chiuso ">
+<body class="chiuso apre2">
 
 <div id="scena">
   <button class="busta" id="busta" aria-label="Apri l'invito">
@@ -775,7 +800,16 @@ footer .saluto,.programma .h{
   if (!$("stemma").getAttribute("src")) $("stemma").classList.add("nascosto");
   $("nLei").textContent = C.lei;
   $("nLui").textContent = C.lui;
-  $("firma").textContent = C.lei + " & " + C.lui;
+  /* La firma in fondo ripete i due nomi come in testa, con la stessa "e"
+     in calligrafia, piu' piccola e piu' chiara. Prima qui c'era una & che
+     non somigliava a nient'altro nella pagina. */
+  const pezziFirma = [["", C.lei], ["et", "e"], ["", C.lui]];
+  pezziFirma.forEach(function(p){
+    const s = document.createElement("span");
+    if (p[0]) s.className = p[0];
+    s.textContent = p[1];
+    $("firma").appendChild(s);
+  });
   $("occhiello").textContent = C.occhiello || "Ci sposiamo";
   $("annuncio").textContent = C.annuncio || "";
   if ((C.invito || "").trim()) $("invito").textContent = C.invito;
@@ -1031,6 +1065,11 @@ footer .saluto,.programma .h{
   function apri(){
     if (apertaGia) return; apertaGia = true;
     busta.classList.add("aperta");
+    /* Da qui in poi la busta e' fatta di pezzi: se ne va la fotografia
+       intera che stava sotto a tenerla insieme, e il fondo si dissolve.
+       Fino a un istante fa la copertina era identica a quella di sempre.
+       Il perche' sta nel CSS, alla voce apre2. */
+    if (document.body.classList.contains("apre2")) scena.classList.add("smonta");
     $("istruzione").classList.add("via");
     document.body.classList.remove("chiuso");
     foglio.classList.add("dentro");
