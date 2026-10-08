@@ -1251,10 +1251,10 @@ body.provaZ .busta.aperta .fronte{background-image:url("data:image/jpeg;base64,/
       A(L, [{transform: "rotateX(0deg)"}, {transform: "rotateX(180deg)"}], 350, 1300, "cubic-bezier(.5,0,.25,1)");
       A(L, [{opacity: 1}, {opacity: 0}], 1500, 700, "ease");
       /* la tasca scende senza saltello, un filino piu' svelta (08/10 sera) */
-      A(fr, [{transform: "translateY(0)"}, {transform: "translateY(108%)"}], 1300, 500, "cubic-bezier(.55,0,.35,1)");
-      setTimeout(function(){ busta.classList.add("fuori"); }, 1750);
-      setTimeout(function(){ scena.classList.add("via"); }, 1850);
-      setTimeout(function(){ scena.style.display = "none"; }, 2150);
+      A(fr, [{transform: "translateY(0)"}, {transform: "translateY(108%)"}], 1200, 400, "cubic-bezier(.55,0,.35,1)");
+      setTimeout(function(){ busta.classList.add("fuori"); }, 1550);
+      setTimeout(function(){ scena.classList.add("via"); }, 1650);
+      setTimeout(function(){ scena.style.display = "none"; }, 1950);
       return;
     }
     const prova = document.body.classList.contains("apre1") ||
