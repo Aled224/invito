@@ -1233,10 +1233,11 @@ body.provaZ .busta.aperta .fronte{background-image:url("data:image/jpeg;base64,/
       A(sigillo, [{transform: "scale(1)"}, {transform: "scale(.95)"}, {transform: "scale(1)"}], 0, 280, "ease-out");
       A(L, [{transform: "rotateX(0deg)"}, {transform: "rotateX(180deg)"}], 350, 1300, "cubic-bezier(.5,0,.25,1)");
       A(L, [{opacity: 1}, {opacity: 0}], 1500, 700, "ease");
-      A(fr, [{transform: "translateY(0)"}, {transform: "translateY(-1.7%)", offset: .18}, {transform: "translateY(108%)"}], 1450, 1300, "cubic-bezier(.55,0,.35,1)");
-      setTimeout(function(){ busta.classList.add("fuori"); }, 2650);
-      setTimeout(function(){ scena.classList.add("via"); }, 2750);
-      setTimeout(function(){ scena.style.display = "none"; }, 3050);
+      /* la tasca scende senza saltello, un filino piu' svelta (08/10 sera) */
+      A(fr, [{transform: "translateY(0)"}, {transform: "translateY(108%)"}], 1450, 1000, "cubic-bezier(.55,0,.35,1)");
+      setTimeout(function(){ busta.classList.add("fuori"); }, 2400);
+      setTimeout(function(){ scena.classList.add("via"); }, 2500);
+      setTimeout(function(){ scena.style.display = "none"; }, 2800);
       return;
     }
     const prova = document.body.classList.contains("apre1") ||
