@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="color-scheme" content="light">
 <style>/* NIENTE NERO (08/10/2026): dal primo istante il colore della carta della busta */html{background:#E3D5CA;color-scheme:light}</style>
+<script>/* RICARICA ORDINATA (08/10/2026): ricaricando si riparte sempre dall'inizio */try{if("scrollRestoration" in history)history.scrollRestoration="manual";}catch(e){}</script>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#7E6350">
@@ -1245,7 +1246,18 @@ body.provaZ .busta.aperta .lembo{transform:none}
      poi la busta si allontana e sotto c'e' gia' l'invito.
      Nessuna schermata di passaggio. */
   function apri(){
-    if (apertaGia) return; apertaGia = true;
+    if (apertaGia) return;
+    /* RICARICA ORDINATA: se l'invito sotto non e' ancora arrivato tutto
+       (immagini e font in fondo alla pagina), si aspetta quell'istante */
+    if (document.readyState === "loading") {
+      if (!apri.inAttesa) {
+        apri.inAttesa = true;
+        document.addEventListener("DOMContentLoaded", function(){ apri.inAttesa = false; apri(); });
+      }
+      return;
+    }
+    apertaGia = true;
+    window.scrollTo(0, 0);
     busta.classList.add("aperta");
     /* Da qui in poi la busta e' fatta di pezzi: se ne va la fotografia
        intera che stava sotto a tenerla insieme, e il fondo si dissolve.
